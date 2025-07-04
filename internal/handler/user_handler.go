@@ -182,27 +182,27 @@ type VerifyRequest struct {
 	EmailOrPhone string `json:"email_or_phone" binding:"required"`
 }
 
-// func (h *UserHandler) VerifyCredentials(c *gin.Context) {
-// 	var req VerifyRequest
-// 	if err := c.ShouldBindJSON(&req); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
+func (h *UserHandler) VerifyCredentials(c *gin.Context) {
+	var req VerifyRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-// 	ctx := context.Background()
-// 	query := h.firestoreClient.Collection("users").Where("Email", "==", req.EmailOrPhone)
-// 	if service.ValidatePhoneNumber(req.EmailOrPhone) {
-// 		query = h.firestoreClient.Collection("users").Where("PhoneNumber", "==", req.EmailOrPhone)
-// 	}
+	ctx := context.Background()
+	query := h.firestoreClient.Collection("users").Where("Email", "==", req.EmailOrPhone)
+	if service.ValidatePhoneNumber(req.EmailOrPhone) {
+		query = h.firestoreClient.Collection("users").Where("PhoneNumber", "==", req.EmailOrPhone)
+	}
 
-// 	docs, _ := query.Documents(ctx).GetAll()
-// 	if len(docs) == 0 {
-// 		c.JSON(http.StatusOK, gin.H{"exists": false})
-// 		return
-// 	}
+	docs, _ := query.Documents(ctx).GetAll()
+	if len(docs) == 0 {
+		c.JSON(http.StatusOK, gin.H{"exists": false})
+		return
+	}
 
-// 	c.JSON(http.StatusOK, gin.H{"exists": true, "uid": docs[0].Ref.ID})
-// }
+	c.JSON(http.StatusOK, gin.H{"exists": true, "uid": docs[0].Ref.ID})
+}
 
 // type ForgotRequest struct {
 // 	Email string `json:"email" binding:"required,email"`
