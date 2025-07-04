@@ -15,8 +15,16 @@ func SetupRouter(cfg *config.Config, authClient *firebase.Client, firestoreClien
 	api := r.Group("/api")
 	{
 		api.POST("/signup", userHandler.SignUp)
-
+		api.POST("/login", userHandler.Login)
+		api.POST("/guest-login", userHandler.GuestLogin)
+		api.POST("/verify-credentials", userHandler.VerifyCredentials)
+		api.POST("/forgot-password", userHandler.ForgotPassword)
+		api.POST("/create-new-password", userHandler.CreateNewPassword)
+		api.POST("/change-email-password", userHandler.ChangeEmailPassword)
+		api.POST("/add-2fa", userHandler.Add2FA)
+		api.POST("/add-other-credential", userHandler.AddOtherCredential)
 	}
 
 	return r
 }
+
