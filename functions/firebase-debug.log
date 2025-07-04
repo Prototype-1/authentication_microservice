@@ -106,3 +106,45 @@ Dev App Server is now running.
 [info] +  functions: Using node@20 from host. 
 [debug] [2025-07-04T07:29:18.989Z] Could not find functions.yaml. Must use http discovery
 [debug] [2025-07-04T07:29:19.022Z] Found firebase-functions binary at 'C:\Users\Aswin\authentication_microservice\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8312
+
+[debug] [2025-07-04T07:29:21.075Z] Got response from /__/functions.yaml {"endpoints":{"syncUserToDBs":{"platform":"gcfv1","availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"eventTrigger":{"eventType":"providers/cloud.firestore/eventTypes/document.create","eventFilters":{"resource":"projects/auth-task-project/databases/(default)/documents/users/{userId}"},"retry":false},"labels":{},"entryPoint":"syncUserToDBs"},"helloWorld":{"platform":"gcfv1","availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"httpsTrigger":{},"entryPoint":"helloWorld"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[debug] [2025-07-04T07:29:26.131Z] defaultcredentials: writing to file C:\Users\Aswin\AppData\Roaming\firebase\www_aswin320_gmail.com_application_default_credentials.json
+[debug] [2025-07-04T07:29:26.132Z] Setting GAC to C:\Users\Aswin\AppData\Roaming\firebase\www_aswin320_gmail.com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\Aswin\\AppData\\Roaming\\firebase\\www_aswin320_gmail.com_application_default_credentials.json"}}
+[info] +  functions: Loaded functions definitions from source: syncUserToDBs, helloWorld. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: syncUserToDBs, helloWorld."}}
+[debug] [2025-07-04T07:29:26.138Z] addFirestoreTrigger "{\"eventTrigger\":{\"eventType\":\"providers/cloud.firestore/eventTypes/document.create\",\"resource\":\"projects/auth-task-project/databases/(default)/documents/users/{userId}\",\"service\":\"firestore.googleapis.com\"}}"
+[debug] [2025-07-04T07:29:26.139Z] >>> [apiv2][query] PUT http://127.0.0.1:8080/emulator/v1/projects/auth-task-project/triggers/us-central1-syncUserToDBs-0 [none]
+[debug] [2025-07-04T07:29:26.139Z] >>> [apiv2][body] PUT http://127.0.0.1:8080/emulator/v1/projects/auth-task-project/triggers/us-central1-syncUserToDBs-0 "{\"eventTrigger\":{\"eventType\":\"providers/cloud.firestore/eventTypes/document.create\",\"resource\":\"projects/auth-task-project/databases/(default)/documents/users/{userId}\",\"service\":\"firestore.googleapis.com\"}}"
+[debug] [2025-07-04T07:29:26.149Z] Jul 04, 2025 12:59:26 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+ {"metadata":{"emulator":{"name":"firestore"},"message":"Jul 04, 2025 12:59:26 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead\r\nINFO: Detected non-HTTP/2 connection.\r\n"}}
+[debug] [2025-07-04T07:29:26.530Z] Jul 04, 2025 12:59:26 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected HTTP/2 connection.
+ {"metadata":{"emulator":{"name":"firestore"},"message":"Jul 04, 2025 12:59:26 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead\r\nINFO: Detected HTTP/2 connection.\r\n"}}
+[debug] [2025-07-04T07:29:27.772Z] <<< [apiv2][status] PUT http://127.0.0.1:8080/emulator/v1/projects/auth-task-project/triggers/us-central1-syncUserToDBs-0 200
+[debug] [2025-07-04T07:29:27.772Z] <<< [apiv2][body] PUT http://127.0.0.1:8080/emulator/v1/projects/auth-task-project/triggers/us-central1-syncUserToDBs-0 {}
+[info] +  functions[us-central1-syncUserToDBs]: firestore function initialized. {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mfirestore\u001b[22m function initialized."}}
+[info] +  functions[us-central1-helloWorld]: http function initialized (http://127.0.0.1:5001/auth-task-project/us-central1/helloWorld). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/auth-task-project/us-central1/helloWorld)."}}
+[debug] [2025-07-04T07:29:27.789Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: . If you are not running the Firebase Data Connect VSCode extension, this is expected and not an issue.
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:4000/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌────────────┬────────────────┬──────────────────────────────────┐
+│ Emulator   │ Host:Port      │ View in Emulator UI              │
+├────────────┼────────────────┼──────────────────────────────────┤
+│ Functions  │ 127.0.0.1:5001 │ http://127.0.0.1:4000/functions  │
+├────────────┼────────────────┼──────────────────────────────────┤
+│ Firestore  │ 127.0.0.1:8080 │ http://127.0.0.1:4000/firestore  │
+├────────────┼────────────────┼──────────────────────────────────┤
+│ Extensions │ 127.0.0.1:5001 │ http://127.0.0.1:4000/extensions │
+└────────────┴────────────────┴──────────────────────────────────┘
+  Emulator Hub host: 127.0.0.1 port: 4400
+  Other reserved ports: 4500, 9150
+┌─────────────────────────┬───────────────┬─────────────────────┐
+│ Extension Instance Name │ Extension Ref │ View in Emulator UI │
+└─────────────────────────┴───────────────┴─────────────────────┘
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
