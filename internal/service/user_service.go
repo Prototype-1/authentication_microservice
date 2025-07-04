@@ -29,7 +29,7 @@ func ValidatePassword(password string) error {
 }
 
 func ValidatePhoneNumber(phone string) bool {
-	// Basic +countrycode + digits
+	// Contact number validation: +countrycode + digits
 	match, _ := regexp.MatchString(`^\+[1-9]\d{1,14}$`, phone)
 	return match
 }
