@@ -2,15 +2,16 @@ package handler
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go/v4/auth"
 	"github.com/Prototype-1/authentication_microservice/internal/model"
 	"github.com/Prototype-1/authentication_microservice/internal/service"
+	"github.com/Prototype-1/authentication_microservice/pkg"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+	"net/mail"
 )
 
 type UserHandler struct {
@@ -50,9 +51,12 @@ func (h *UserHandler) SignUp(c *gin.Context) {
 		return
 	}
 
-	if req.Email != "" {
-	log.Print("Please provide a valid email")
+if req.Email != "" {
+	if _, err := mail.ParseAddress(req.Email); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid email format"})
+		return
 	}
+}
 
 	if req.PhoneNumber != "" && !service.ValidatePhoneNumber(req.PhoneNumber) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid phone number format. should be in +countrycode format"})
@@ -139,9 +143,16 @@ func (h *UserHandler) Login(c *gin.Context) {
 		{Path: "UserLastLoginDetail", Value: time.Now()},
 	})
 
+	token, err := pkg.GenerateJWT(user.UID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "login successful",
 		"uid":     user.UID,
+		"token":   token,
 	})
 }
 
@@ -172,9 +183,16 @@ func (h *UserHandler) GuestLogin(c *gin.Context) {
 		return
 	}
 
+		token, err := pkg.GenerateJWT(user.UID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "guest user created",
 		"uid":     u.UID,
+		"token": token,
 	})
 }
 
@@ -272,7 +290,17 @@ type ChangeRequest struct {
 }
 
 func (h *UserHandler) ChangeEmailPassword(c *gin.Context) {
-	var req ChangeRequest
+	uidFromJWT, exists := c.Get("uid")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "uid not found in context"})
+		return
+	}
+	uid := uidFromJWT.(string)
+
+	var req struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -291,7 +319,7 @@ func (h *UserHandler) ChangeEmailPassword(c *gin.Context) {
 		params.Password(req.Password)
 	}
 
-	_, err := h.authClient.UpdateUser(ctx, req.UID, params)
+	_, err := h.authClient.UpdateUser(ctx, uid, params)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed update in firebase"})
 		return
@@ -299,7 +327,7 @@ func (h *UserHandler) ChangeEmailPassword(c *gin.Context) {
 
 	if req.Password != "" {
 		hashedPwd, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-		_, _ = h.firestoreClient.Collection("users").Doc(req.UID).Update(ctx, []firestore.Update{
+		_, _ = h.firestoreClient.Collection("users").Doc(uid).Update(ctx, []firestore.Update{
 			{Path: "Password", Value: string(hashedPwd)},
 		})
 	}
@@ -313,28 +341,41 @@ type TwoFARequest struct {
 }
 
 func (h *UserHandler) Add2FA(c *gin.Context) {
-	var req TwoFARequest
+	uidFromJWT, exists := c.Get("uid")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "uid not found in context"})
+		return
+	}
+	uid := uidFromJWT.(string)
+
+	var req struct {
+		Is2FNeeded bool `json:"is2FNeeded"`
+	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	ctx := context.Background()
-	_, _ = h.firestoreClient.Collection("users").Doc(req.UID).Update(ctx, []firestore.Update{
+	_, _ = h.firestoreClient.Collection("users").Doc(uid).Update(ctx, []firestore.Update{
 		{Path: "Is2FNeeded", Value: req.Is2FNeeded},
 	})
 
 	c.JSON(http.StatusOK, gin.H{"message": "2FA setting updated"})
 }
 
-type AddCredentialRequest struct {
-	UID   string `json:"uid" binding:"required"`
-	Email string `json:"email"`
-	Phone string `json:"phone"`
-}
-
 func (h *UserHandler) AddOtherCredential(c *gin.Context) {
-	var req AddCredentialRequest
+	uidFromJWT, exists := c.Get("uid")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "uid not found in context"})
+		return
+	}
+	uid := uidFromJWT.(string)
+
+	var req struct {
+		Email string `json:"email"`
+		Phone string `json:"phone"`
+	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -353,10 +394,11 @@ func (h *UserHandler) AddOtherCredential(c *gin.Context) {
 		fields = append(fields, firestore.Update{Path: "PhoneNumber", Value: req.Phone})
 	}
 	if len(fields) > 0 {
-		_, _ = h.firestoreClient.Collection("users").Doc(req.UID).Update(ctx, fields)
+		_, _ = h.firestoreClient.Collection("users").Doc(uid).Update(ctx, fields)
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "credentials updated"})
 }
+
 
 
 
