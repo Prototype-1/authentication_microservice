@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/Prototype-1/authentication_microservice/config"
 	"github.com/Prototype-1/authentication_microservice/internal/handler"
+	"github.com/Prototype-1/authentication_microservice/middleware"
 	"github.com/gin-gonic/gin"
 	firebase "firebase.google.com/go/v4/auth"
 	"cloud.google.com/go/firestore"
@@ -20,11 +21,15 @@ func SetupRouter(cfg *config.Config, authClient *firebase.Client, firestoreClien
 		api.POST("/verify-credentials", userHandler.VerifyCredentials)
 		api.POST("/forgot-password", userHandler.ForgotPassword)
 		api.POST("/create-new-password", userHandler.CreateNewPassword)
-		api.POST("/change-email-password", userHandler.ChangeEmailPassword)
-		api.POST("/add-2fa", userHandler.Add2FA)
-		api.POST("/add-other-credential", userHandler.AddOtherCredential)
 	}
 
+	apiAuth := api.Group("/")
+	apiAuth.Use(middleware.AuthMiddleware())
+	{
+		apiAuth.POST("/change-email-password", userHandler.ChangeEmailPassword)
+		apiAuth.POST("/add-2fa", userHandler.Add2FA)
+		apiAuth.POST("/add-other-credential", userHandler.AddOtherCredential)
+	}
 	return r
 }
 
